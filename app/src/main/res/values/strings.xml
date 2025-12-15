@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Light Control</string>
+    <string name="add_device">Добавить устройство</string>
+    <string name="action_settings">Настройки</string>
+</resources>
