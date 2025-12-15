@@ -12,10 +12,16 @@ import java.util.List;
 
 public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceViewHolder> {
 
-    private final List<Device> devices;
+    public interface OnDeviceClickListener {
+        void onDeviceSelected(Device device, int position);
+    }
 
-    public DeviceAdapter(List<Device> devices) {
+    private final List<Device> devices;
+    private final OnDeviceClickListener clickListener;
+
+    public DeviceAdapter(List<Device> devices, OnDeviceClickListener clickListener) {
         this.devices = devices;
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -36,7 +42,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
         return devices.size();
     }
 
-    static class DeviceViewHolder extends RecyclerView.ViewHolder {
+    class DeviceViewHolder extends RecyclerView.ViewHolder {
         private final ItemDeviceBinding binding;
 
         DeviceViewHolder(@NonNull ItemDeviceBinding binding) {
@@ -47,6 +53,17 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
         void bind(Device device) {
             binding.deviceName.setText(device.getName());
             binding.deviceIp.setText(device.getIpAddress());
+
+            binding.getRoot().setOnClickListener(v -> {
+                if (clickListener == null) {
+                    return;
+                }
+
+                int position = getBindingAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    clickListener.onDeviceSelected(device, position);
+                }
+            });
         }
     }
 }

@@ -1,8 +1,8 @@
 package net.robixlab.lightcontrol;
 
 public class Device {
-    private final String name;
-    private final String ipAddress;
+    private String name;
+    private String ipAddress;
 
     public Device(String name, String ipAddress) {
         this.name = name;
@@ -15,5 +15,13 @@ public class Device {
 
     public String getIpAddress() {
         return ipAddress;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 }
