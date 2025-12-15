@@ -358,6 +358,7 @@ public class MainActivity extends AppCompatActivity
 
     private void updateEmptyState() {
         boolean has = !devices.isEmpty();
+        binding.deviceCounter.setText(String.valueOf(devices.size()));
         binding.devicesRecycler.setVisibility(has ? View.VISIBLE : View.GONE);
         binding.emptyState.setVisibility(has ? View.GONE : View.VISIBLE);
     }
