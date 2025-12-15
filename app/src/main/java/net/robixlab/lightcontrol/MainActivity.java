@@ -22,10 +22,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnDeviceClickListener {
+public class MainActivity extends AppCompatActivity
+        implements DeviceAdapter.OnDeviceClickListener {
 
     private static final String PREFS_NAME = "devices_prefs";
     private static final String KEY_DEVICES = "devices";
@@ -42,7 +46,11 @@ public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnD
 
         loadDevices();
         setupRecycler();
-        binding.addDeviceFab.setOnClickListener(v -> showDeviceDialog(null, -1));
+
+        binding.addDeviceFab.setOnClickListener(v ->
+                showDeviceDialog(null, -1)
+        );
+
         updateEmptyState();
     }
 
@@ -52,74 +60,141 @@ public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnD
         binding.devicesRecycler.setAdapter(deviceAdapter);
     }
 
+    // ===================== DEVICE ACTIONS =====================
+
+    @Override
+    public void onDeviceSelected(Device device, int position) {
+        showDeviceActions(device);
+    }
+
+    @Override
+    public void onDeviceSettingsClicked(Device device, int position) {
+        showDeviceDialog(device, position);
+    }
+
+    private void showDeviceActions(Device device) {
+        DialogDeviceActionsBinding actionsBinding =
+                DialogDeviceActionsBinding.inflate(getLayoutInflater());
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(device.getName())
+                .setView(actionsBinding.getRoot())
+                .create();
+
+        actionsBinding.actionTurnRed.setOnClickListener(v -> {
+            sendColor(device, 255, 0, 0);
+            dialog.dismiss();
+        });
+
+        actionsBinding.actionTurnGreen.setOnClickListener(v -> {
+            sendColor(device, 0, 255, 0);
+            dialog.dismiss();
+        });
+
+        actionsBinding.actionTurnBlue.setOnClickListener(v -> {
+            sendColor(device, 0, 0, 255);
+            dialog.dismiss();
+        });
+
+        actionsBinding.actionTurnRainbow.setOnClickListener(v -> {
+            sendRainbow(device);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    public void sendColor(Device device, int r, int g, int b) {
+        new Thread(() -> {
+            try {
+                String urlStr = "http://" + device.getIpAddress()
+                        + "/setColor?r=" + r + "&g=" + g + "&b=" + b;
+
+                HttpURLConnection conn =
+                        (HttpURLConnection) new URL(urlStr).openConnection();
+
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(2000);
+                conn.setReadTimeout(2000);
+
+                int code = conn.getResponseCode();
+                conn.disconnect();
+
+                runOnUiThread(() -> {
+                    if (code != 200) {
+                        Toast.makeText(this,
+                                "Ошибка гаджета",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() ->
+                        Toast.makeText(this,
+                                "Гаджет недоступен",
+                                Toast.LENGTH_SHORT).show()
+                );
+            }
+        }).start();
+    }
+
+    private void sendRainbow(Device device) {
+        new Thread(() -> {
+            try {
+                String urlStr = "http://" + device.getIpAddress() + "/rainbow";
+                HttpURLConnection conn =
+                        (HttpURLConnection) new URL(urlStr).openConnection();
+
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(2000);
+                conn.setReadTimeout(2000);
+                conn.getResponseCode();
+                conn.disconnect();
+
+            } catch (Exception ignored) {}
+        }).start();
+    }
+
+    // ===================== ADD / EDIT DEVICE =====================
+
     private void showDeviceDialog(@Nullable Device deviceToEdit, int position) {
-        DialogAddDeviceBinding dialogBinding = DialogAddDeviceBinding.inflate(getLayoutInflater());
+        DialogAddDeviceBinding dialogBinding =
+                DialogAddDeviceBinding.inflate(getLayoutInflater());
 
         if (deviceToEdit != null) {
             dialogBinding.deviceNameInput.setText(deviceToEdit.getName());
             dialogBinding.deviceIpInput.setText(deviceToEdit.getIpAddress());
-            Integer port = deviceToEdit.getPort();
-            if (port != null) {
-                dialogBinding.devicePortInput.setText(String.valueOf(port));
-            }
         }
 
         AlertDialog dialog = new MaterialAlertDialogBuilder(this)
-                .setTitle(deviceToEdit == null ? R.string.add_device : R.string.edit_device)
+                .setTitle(deviceToEdit == null
+                        ? R.string.add_device
+                        : R.string.edit_device)
                 .setView(dialogBinding.getRoot())
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.save, null)
                 .create();
 
-        dialog.setOnShowListener(dialogInterface -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveButton.setOnClickListener(v -> {
-                String name = dialogBinding.deviceNameInput.getText() != null
-                        ? dialogBinding.deviceNameInput.getText().toString().trim()
-                        : "";
-                String ip = dialogBinding.deviceIpInput.getText() != null
-                        ? dialogBinding.deviceIpInput.getText().toString().trim()
-                        : "";
-                String portText = dialogBinding.devicePortInput.getText() != null
-                        ? dialogBinding.devicePortInput.getText().toString().trim()
-                        : "";
+        dialog.setOnShowListener(d -> {
+            Button btn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            btn.setOnClickListener(v -> {
 
-                dialogBinding.deviceNameLayout.setError(null);
-                dialogBinding.deviceIpLayout.setError(null);
-                dialogBinding.devicePortLayout.setError(null);
+                String name = Objects.requireNonNull(dialogBinding.deviceNameInput.getText()).toString().trim();
+                String ip = Objects.requireNonNull(dialogBinding.deviceIpInput.getText()).toString().trim();
 
-                if (TextUtils.isEmpty(name)) {
-                    dialogBinding.deviceNameLayout.setError(getString(R.string.error_empty_name));
+                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(ip)) {
+                    Toast.makeText(this,
+                            "Заполните все поля",
+                            Toast.LENGTH_SHORT).show();
                     return;
-                }
-
-                if (TextUtils.isEmpty(ip)) {
-                    dialogBinding.deviceIpLayout.setError(getString(R.string.error_empty_ip));
-                    return;
-                }
-                Integer port = null;
-                if (!TextUtils.isEmpty(portText)) {
-                    try {
-                        int parsedPort = Integer.parseInt(portText);
-                        if (parsedPort <= 0 || parsedPort > 65535) {
-                            dialogBinding.devicePortLayout.setError(getString(R.string.error_invalid_port));
-                            return;
-                        }
-                        port = parsedPort;
-                    } catch (NumberFormatException e) {
-                        dialogBinding.devicePortLayout.setError(getString(R.string.error_invalid_port));
-                        return;
-                    }
                 }
 
                 if (deviceToEdit == null) {
-                    devices.add(0, new Device(name, ip, port));
+                    devices.add(0, new Device(name, ip, null));
                     deviceAdapter.notifyItemInserted(0);
-                    binding.devicesRecycler.smoothScrollToPosition(0);
-                } else if (position >= 0 && position < devices.size()) {
+                } else {
                     deviceToEdit.setName(name);
                     deviceToEdit.setIpAddress(ip);
-                    deviceToEdit.setPort(port);
                     deviceAdapter.notifyItemChanged(position);
                 }
 
@@ -132,138 +207,48 @@ public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnD
         dialog.show();
     }
 
-    @Override
-    public void onDeviceSelected(Device device, int position) {
-        showDeviceActions(device, position);
-    }
-
-    @Override
-    public void onDeviceSettingsClicked(Device device, int position) {
-        showDeviceOptions(device, position);
-    }
-
-    private void showDeviceActions(Device device, int position) {
-        DialogDeviceActionsBinding actionsBinding = DialogDeviceActionsBinding.inflate(getLayoutInflater());
-
-        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.device_actions_title, device.getName()))
-                .setView(actionsBinding.getRoot())
-                .create();
-
-        actionsBinding.actionTurnRed.setOnClickListener(v -> onClickedRed(dialog, R.string.action_red));
-        actionsBinding.actionTurnGreen.setOnClickListener(v -> onClickedGreen(dialog, R.string.action_green));
-        actionsBinding.actionTurnBlue.setOnClickListener(v -> onClickedBlue(dialog, R.string.action_blue));
-        actionsBinding.actionTurnRainbow.setOnClickListener(v -> onClickedRainbow(dialog, R.string.action_rainbow));
-
-        dialog.show();
-    }
-
-    private void onClickedRed(AlertDialog dialog, int actionResId) {
-        Toast.makeText(this, getString(R.string.action_not_implemented, getString(actionResId)), Toast.LENGTH_SHORT).show();
-        dialog.dismiss();
-    }
-    private void onClickedGreen(AlertDialog dialog, int actionResId) {
-        Toast.makeText(this, getString(R.string.action_not_implemented, getString(actionResId)), Toast.LENGTH_SHORT).show();
-        dialog.dismiss();
-    }
-    private void onClickedBlue(AlertDialog dialog, int actionResId) {
-        Toast.makeText(this, getString(R.string.action_not_implemented, getString(actionResId)), Toast.LENGTH_SHORT).show();
-        dialog.dismiss();
-    }
-    private void onClickedRainbow(AlertDialog dialog, int actionResId) {
-        Toast.makeText(this, getString(R.string.action_not_implemented, getString(actionResId)), Toast.LENGTH_SHORT).show();
-        dialog.dismiss();
-    }
-
-    private void showDeviceOptions(Device device, int position) {
-        CharSequence[] options = {
-                getString(R.string.rename_device),
-                getString(R.string.delete_device)
-        };
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(device.getName())
-                .setItems(options, (dialog, which) -> {
-                    if (which == 0) {
-                        showDeviceDialog(device, position);
-                    } else if (which == 1) {
-                        confirmDelete(device, position);
-                    }
-                })
-                .show();
-    }
-
-    private void confirmDelete(Device device, int position) {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.delete_device)
-                .setMessage(getString(R.string.delete_device_confirmation, device.getName()))
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.delete, (dialog, which) -> deleteDevice(position))
-                .show();
-    }
-
-    private void deleteDevice(int position) {
-        if (position < 0 || position >= devices.size()) {
-            return;
-        }
-
-        devices.remove(position);
-        deviceAdapter.notifyItemRemoved(position);
-        saveDevices();
-        updateEmptyState();
-    }
+    // ===================== STORAGE =====================
 
     private void loadDevices() {
-        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String devicesJson = preferences.getString(KEY_DEVICES, null);
-        if (devicesJson == null) {
-            return;
-        }
+        SharedPreferences prefs =
+                getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
+        String json = prefs.getString(KEY_DEVICES, null);
+        if (json == null) return;
 
         try {
-            JSONArray array = new JSONArray(devicesJson);
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject item = array.getJSONObject(i);
-                String name = item.optString("name");
-                String ip = item.optString("ip");
-                Integer port = null;
-                if (item.has("port") && !item.isNull("port")) {
-                    int parsedPort = item.optInt("port", -1);
-                    if (parsedPort > 0) {
-                        port = parsedPort;
-                    }
-                }
-                if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(ip)) {
-                    devices.add(new Device(name, ip, port));
-                }
+            JSONArray arr = new JSONArray(json);
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject o = arr.getJSONObject(i);
+                devices.add(new Device(
+                        o.getString("name"),
+                        o.getString("ip"),
+                        null
+                ));
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        } catch (JSONException ignored) {}
     }
 
     private void saveDevices() {
-        JSONArray array = new JSONArray();
-        for (Device device : devices) {
-            JSONObject item = new JSONObject();
+        JSONArray arr = new JSONArray();
+        for (Device d : devices) {
+            JSONObject o = new JSONObject();
             try {
-                item.put("name", device.getName());
-                item.put("ip", device.getIpAddress());
-                item.put("port", device.getPort() != null ? device.getPort() : JSONObject.NULL);
-                array.put(item);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+                o.put("name", d.getName());
+                o.put("ip", d.getIpAddress());
+                arr.put(o);
+            } catch (JSONException ignored) {}
         }
 
-        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        preferences.edit().putString(KEY_DEVICES, array.toString()).apply();
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putString(KEY_DEVICES, arr.toString())
+                .apply();
     }
 
     private void updateEmptyState() {
-        boolean hasDevices = !devices.isEmpty();
-        binding.emptyState.setVisibility(hasDevices ? View.GONE : View.VISIBLE);
-        binding.devicesRecycler.setVisibility(hasDevices ? View.VISIBLE : View.GONE);
-        binding.deviceCounter.setText(String.valueOf(devices.size()));
+        boolean has = !devices.isEmpty();
+        binding.devicesRecycler.setVisibility(has ? View.VISIBLE : View.GONE);
+        binding.emptyState.setVisibility(has ? View.GONE : View.VISIBLE);
     }
 }
