@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity
                 Integer port = device.getPort();
                 if (port == null) {
                     runOnUiThread(() -> Toast.makeText(this,
-                            "Укажите порт устройства",
+                            R.string.error_invalid_port,
                             Toast.LENGTH_SHORT).show()
                     );
                     return;
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity
 
                 if (isDeviceReachable(device)) {
                     runOnUiThread(() -> Toast.makeText(this,
-                            "Гаджет недоступен",
+                            R.string.error_invalid_gadget,
                             Toast.LENGTH_SHORT).show()
                     );
                     return;
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity
                 runOnUiThread(() -> {
                     if (code != 200) {
                         Toast.makeText(this,
-                                "Ошибка гаджета",
+                                R.string.error_gadget,
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity
             } catch (Exception e) {
                 runOnUiThread(() ->
                         Toast.makeText(this,
-                                "Гаджет недоступен",
+                                R.string.error_invalid_gadget,
                                 Toast.LENGTH_SHORT).show()
                 );
             }
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity
                 Integer port = device.getPort();
                 if (port == null) {
                     runOnUiThread(() -> Toast.makeText(this,
-                            "Укажите порт устройства",
+                            R.string.error_invalid_port,
                             Toast.LENGTH_SHORT).show()
                     );
                     return;
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity
 
                 if (isDeviceReachable(device)) {
                     runOnUiThread(() -> Toast.makeText(this,
-                            "Гаджет недоступен",
+                            R.string.error_invalid_gadget,
                             Toast.LENGTH_SHORT).show()
                     );
                     return;
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity
                 Integer port = parsePort(portStr);
                 if (TextUtils.isEmpty(name) || TextUtils.isEmpty(ip)) {
                     Toast.makeText(this,
-                            "Заполните все поля",
+                            R.string.error_fill_all_fields,
                             Toast.LENGTH_SHORT).show();
                     return;
                 }

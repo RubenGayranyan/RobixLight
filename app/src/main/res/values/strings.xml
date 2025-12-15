@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Light Control</string>
+    <string name="app_name">RobixLight</string>
     <string name="app_logo">Логотип приложения</string>
     <string name="app_tagline">Управляйте IoT устройствами от RobixLab</string>
     <string name="add_device">Добавить устройство</string>
@@ -9,6 +9,9 @@
     <string name="device_ip_hint">IP адрес устройства</string>
     <string name="device_port_hint">Порт устройства</string>
     <string name="device_port_placeholder">8080</string>
+    <string name="error_gadget">Ошибка устройства</string>
+    <string name="error_invalid_gadget">Устройство не найдено</string>
+    <string name="error_fill_all_fields">Заполните все поля</string>
     <string name="error_empty_name">Введите название устройства</string>
     <string name="error_empty_ip">Введите IP адрес</string>
     <string name="error_invalid_port">Укажите порт от 1 до 65535</string>
