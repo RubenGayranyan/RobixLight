@@ -14,6 +14,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
 
     public interface OnDeviceClickListener {
         void onDeviceSelected(Device device, int position);
+        void onDeviceSettingsClicked(Device device, int position);
     }
 
     private final List<Device> devices;
@@ -67,6 +68,17 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
                 int position = getBindingAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     clickListener.onDeviceSelected(device, position);
+                }
+            });
+
+            binding.deviceSettings.setOnClickListener(v -> {
+                if (clickListener == null) {
+                    return;
+                }
+
+                int position = getBindingAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    clickListener.onDeviceSettingsClicked(device, position);
                 }
             });
         }

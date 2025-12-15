@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -15,6 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import net.robixlab.lightcontrol.databinding.ActivityMainBinding;
 import net.robixlab.lightcontrol.databinding.DialogAddDeviceBinding;
+import net.robixlab.lightcontrol.databinding.DialogDeviceActionsBinding;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -132,7 +134,35 @@ public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnD
 
     @Override
     public void onDeviceSelected(Device device, int position) {
+        showDeviceActions(device, position);
+    }
+
+    @Override
+    public void onDeviceSettingsClicked(Device device, int position) {
         showDeviceOptions(device, position);
+    }
+
+    private void showDeviceActions(Device device, int position) {
+        DialogDeviceActionsBinding actionsBinding = DialogDeviceActionsBinding.inflate(getLayoutInflater());
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.device_actions_title, device.getName()))
+                .setView(actionsBinding.getRoot())
+                .create();
+
+        actionsBinding.actionTurnOn.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_power_on));
+        actionsBinding.actionTurnOff.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_power_off));
+        actionsBinding.actionSettings.setOnClickListener(v -> {
+            dialog.dismiss();
+            showDeviceOptions(device, position);
+        });
+
+        dialog.show();
+    }
+
+    private void handlePlaceholderAction(AlertDialog dialog, int actionResId) {
+        Toast.makeText(this, getString(R.string.action_not_implemented, getString(actionResId)), Toast.LENGTH_SHORT).show();
+        dialog.dismiss();
     }
 
     private void showDeviceOptions(Device device, int position) {
