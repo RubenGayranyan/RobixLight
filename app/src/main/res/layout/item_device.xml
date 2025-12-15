@@ -30,18 +30,18 @@
                 android:textColor="@color/text_normal"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:text="Лента на кухне" />
+                tools:text="LED Matrix" />
 
             <ImageButton
                 android:id="@+id/deviceSettings"
-                style="@style/Widget.MaterialComponents.ImageButton"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/device_settings"
                 android:padding="8dp"
-                android:tint="@color/text_normal"
-                app:srcCompat="@drawable/ic_settings" />
+                app:srcCompat="@drawable/ic_settings"
+                app:tint="@color/blue"
+                tools:ignore="TouchTargetSizeCheck" />
         </LinearLayout>
 
         <TextView

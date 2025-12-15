@@ -9,24 +9,35 @@
     android:paddingBottom="8dp">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/actionTurnOn"
+        android:id="@+id/actionTurnRed"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/action_power_on" />
+        android:text="@string/action_red"
+        android:textColor="@color/red" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/actionTurnOff"
+        android:id="@+id/actionTurnGreen"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/action_power_off" />
+        android:text="@string/action_green"
+        android:textColor="@color/green" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/actionSettings"
+        android:id="@+id/actionTurnBlue"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/action_open_settings" />
+        android:text="@string/action_blue"
+        android:textColor="@color/blue" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/actionTurnRainbow"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_rainbow"
+        android:textColor="@color/purple" />
 
 </LinearLayout>

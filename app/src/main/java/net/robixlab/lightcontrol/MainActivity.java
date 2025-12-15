@@ -150,12 +150,10 @@ public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnD
                 .setView(actionsBinding.getRoot())
                 .create();
 
-        actionsBinding.actionTurnOn.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_power_on));
-        actionsBinding.actionTurnOff.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_power_off));
-        actionsBinding.actionSettings.setOnClickListener(v -> {
-            dialog.dismiss();
-            showDeviceOptions(device, position);
-        });
+        actionsBinding.actionTurnRed.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_red));
+        actionsBinding.actionTurnGreen.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_green));
+        actionsBinding.actionTurnBlue.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_blue));
+        actionsBinding.actionTurnRainbow.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_rainbow));
 
         dialog.show();
     }

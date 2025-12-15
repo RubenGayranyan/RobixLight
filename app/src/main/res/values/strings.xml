@@ -23,8 +23,9 @@
 
     <string name="device_settings">Настройки устройства</string>
     <string name="device_actions_title">Действия с %1$s</string>
-    <string name="action_power_on">Включить</string>
-    <string name="action_power_off">Выключить</string>
-    <string name="action_open_settings">Настроить</string>
+    <string name="action_red">Красный</string>
+    <string name="action_green">Зелёный</string>
+    <string name="action_blue">Синий</string>
+    <string name="action_rainbow">Радуга</string>
     <string name="action_not_implemented">Действие "%1$s" пока не реализовано</string>
 </resources>
