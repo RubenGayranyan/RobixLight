@@ -107,8 +107,25 @@ public class MainActivity extends AppCompatActivity
     public void sendColor(Device device, int r, int g, int b) {
         new Thread(() -> {
             try {
-                String urlStr = "http://" + device.getIpAddress()
-                        + "/setColor?r=" + r + "&g=" + g + "&b=" + b;
+                Integer port = device.getPort();
+                if (port == null) {
+                    runOnUiThread(() -> Toast.makeText(this,
+                            "Укажите порт устройства",
+                            Toast.LENGTH_SHORT).show()
+                    );
+                    return;
+                }
+
+                if (!isDeviceReachable(device)) {
+                    runOnUiThread(() -> Toast.makeText(this,
+                            "Такого гаджета не существует",
+                            Toast.LENGTH_SHORT).show()
+                    );
+                    return;
+                }
+
+                String urlStr = buildBaseUrl(device)
+                        + ":8080/setColor?r=" + r + "&g=" + g + "&b=" + b;
 
                 HttpURLConnection conn =
                         (HttpURLConnection) new URL(urlStr).openConnection();
@@ -141,7 +158,24 @@ public class MainActivity extends AppCompatActivity
     private void sendRainbow(Device device) {
         new Thread(() -> {
             try {
-                String urlStr = "http://" + device.getIpAddress() + "/rainbow";
+                Integer port = device.getPort();
+                if (port == null) {
+                    runOnUiThread(() -> Toast.makeText(this,
+                            "Укажите порт устройства",
+                            Toast.LENGTH_SHORT).show()
+                    );
+                    return;
+                }
+
+                if (!isDeviceReachable(device)) {
+                    runOnUiThread(() -> Toast.makeText(this,
+                            "Такого гаджета не существует",
+                            Toast.LENGTH_SHORT).show()
+                    );
+                    return;
+                }
+
+                String urlStr = buildBaseUrl(device) + "/rainbow";
                 HttpURLConnection conn =
                         (HttpURLConnection) new URL(urlStr).openConnection();
 
@@ -154,6 +188,41 @@ public class MainActivity extends AppCompatActivity
             } catch (Exception ignored) {}
         }).start();
     }
+    private String buildBaseUrl(Device device) {
+        return "http://" + device.getIpAddress() + ":" + device.getPort();
+    }
+
+    private boolean isDeviceReachable(Device device) {
+        try {
+            HttpURLConnection connection = (HttpURLConnection)
+                    new URL(buildBaseUrl(device)).openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(2000);
+            connection.setReadTimeout(2000);
+            int responseCode = connection.getResponseCode();
+            connection.disconnect();
+            return responseCode < HttpURLConnection.HTTP_BAD_REQUEST;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Nullable
+    private Integer parsePort(String portStr) {
+        if (TextUtils.isEmpty(portStr)) {
+            return null;
+        }
+
+        try {
+            int port = Integer.parseInt(portStr);
+            if (port < 1 || port > 65535) {
+                return null;
+            }
+            return port;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 
     // ===================== ADD / EDIT DEVICE =====================
 
@@ -164,6 +233,10 @@ public class MainActivity extends AppCompatActivity
         if (deviceToEdit != null) {
             dialogBinding.deviceNameInput.setText(deviceToEdit.getName());
             dialogBinding.deviceIpInput.setText(deviceToEdit.getIpAddress());
+            Integer port = deviceToEdit.getPort();
+            if (port != null) {
+                dialogBinding.devicePortInput.setText(String.valueOf(port));
+            }
         }
 
         AlertDialog dialog = new MaterialAlertDialogBuilder(this)
@@ -181,7 +254,9 @@ public class MainActivity extends AppCompatActivity
 
                 String name = Objects.requireNonNull(dialogBinding.deviceNameInput.getText()).toString().trim();
                 String ip = Objects.requireNonNull(dialogBinding.deviceIpInput.getText()).toString().trim();
+                String portStr = Objects.requireNonNull(dialogBinding.devicePortInput.getText()).toString().trim();
 
+                Integer port = parsePort(portStr);
                 if (TextUtils.isEmpty(name) || TextUtils.isEmpty(ip)) {
                     Toast.makeText(this,
                             "Заполните все поля",
@@ -189,12 +264,20 @@ public class MainActivity extends AppCompatActivity
                     return;
                 }
 
+                if (port == null) {
+                    Toast.makeText(this,
+                            getString(R.string.error_invalid_port),
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if (deviceToEdit == null) {
-                    devices.add(0, new Device(name, ip, null));
+                    devices.add(0, new Device(name, ip, port));
                     deviceAdapter.notifyItemInserted(0);
                 } else {
                     deviceToEdit.setName(name);
                     deviceToEdit.setIpAddress(ip);
+                    deviceToEdit.setPort(port);
                     deviceAdapter.notifyItemChanged(position);
                 }
 
@@ -223,7 +306,9 @@ public class MainActivity extends AppCompatActivity
                 devices.add(new Device(
                         o.getString("name"),
                         o.getString("ip"),
-                        null
+                        o.has("port") && o.optInt("port", -1) > 0
+                                ? o.optInt("port")
+                                : null
                 ));
             }
         } catch (JSONException ignored) {}
@@ -236,6 +321,7 @@ public class MainActivity extends AppCompatActivity
             try {
                 o.put("name", d.getName());
                 o.put("ip", d.getIpAddress());
+                o.put("port", d.getPort());
                 arr.put(o);
             } catch (JSONException ignored) {}
         }
