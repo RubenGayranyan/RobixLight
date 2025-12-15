@@ -239,14 +239,19 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
                 .setTitle(deviceToEdit == null
                         ? R.string.add_device
                         : R.string.edit_device)
                 .setView(dialogBinding.getRoot())
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.save, null)
-                .create();
+                .setNegativeButton(R.string.cancel, null);
+        setPositiveButton(R.string.save, null);
+
+        if (deviceToEdit != null) {
+            builder.setNeutralButton(R.string.delete, null);
+        }
+
+        AlertDialog dialog = builder.create();
 
         dialog.setOnShowListener(d -> {
             Button btn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
@@ -285,6 +290,27 @@ public class MainActivity extends AppCompatActivity
                 updateEmptyState();
                 dialog.dismiss();
             });
+            if (deviceToEdit != null) {
+                Button deleteBtn = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                deleteBtn.setOnClickListener(v -> {
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle(R.string.delete_device)
+                            .setMessage(getString(
+                                    R.string.delete_device_confirmation,
+                                    deviceToEdit.getName()
+                            ))
+                            .setNegativeButton(R.string.cancel, null)
+                            .setPositiveButton(R.string.delete, (dialog1, which) -> {
+                                devices.remove(position);
+                                deviceAdapter.notifyItemRemoved(position);
+                                saveDevices();
+                                updateEmptyState();
+                                dialog.dismiss();
+                            })
+                            .show();
+                });
+            }
+
         });
 
         dialog.show();
