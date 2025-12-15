@@ -27,5 +27,5 @@
     <string name="action_green">Зелёный</string>
     <string name="action_blue">Синий</string>
     <string name="action_rainbow">Радуга</string>
-    <string name="action_not_implemented">Действие "%1$s" пока не реализовано</string>
+    <string name="action_not_implemented">Включён "%1$s" цвет</string>
 </resources>

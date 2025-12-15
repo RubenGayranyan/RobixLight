@@ -150,15 +150,27 @@ public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnD
                 .setView(actionsBinding.getRoot())
                 .create();
 
-        actionsBinding.actionTurnRed.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_red));
-        actionsBinding.actionTurnGreen.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_green));
-        actionsBinding.actionTurnBlue.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_blue));
-        actionsBinding.actionTurnRainbow.setOnClickListener(v -> handlePlaceholderAction(dialog, R.string.action_rainbow));
+        actionsBinding.actionTurnRed.setOnClickListener(v -> onClickedRed(dialog, R.string.action_red));
+        actionsBinding.actionTurnGreen.setOnClickListener(v -> onClickedGreen(dialog, R.string.action_green));
+        actionsBinding.actionTurnBlue.setOnClickListener(v -> onClickedBlue(dialog, R.string.action_blue));
+        actionsBinding.actionTurnRainbow.setOnClickListener(v -> onClickedRainbow(dialog, R.string.action_rainbow));
 
         dialog.show();
     }
 
-    private void handlePlaceholderAction(AlertDialog dialog, int actionResId) {
+    private void onClickedRed(AlertDialog dialog, int actionResId) {
+        Toast.makeText(this, getString(R.string.action_not_implemented, getString(actionResId)), Toast.LENGTH_SHORT).show();
+        dialog.dismiss();
+    }
+    private void onClickedGreen(AlertDialog dialog, int actionResId) {
+        Toast.makeText(this, getString(R.string.action_not_implemented, getString(actionResId)), Toast.LENGTH_SHORT).show();
+        dialog.dismiss();
+    }
+    private void onClickedBlue(AlertDialog dialog, int actionResId) {
+        Toast.makeText(this, getString(R.string.action_not_implemented, getString(actionResId)), Toast.LENGTH_SHORT).show();
+        dialog.dismiss();
+    }
+    private void onClickedRainbow(AlertDialog dialog, int actionResId) {
         Toast.makeText(this, getString(R.string.action_not_implemented, getString(actionResId)), Toast.LENGTH_SHORT).show();
         dialog.dismiss();
     }
