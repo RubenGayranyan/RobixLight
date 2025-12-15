@@ -116,9 +116,9 @@ public class MainActivity extends AppCompatActivity
                     return;
                 }
 
-                if (!isDeviceReachable(device)) {
+                if (isDeviceReachable(device)) {
                     runOnUiThread(() -> Toast.makeText(this,
-                            "Такого гаджета не существует",
+                            "Гаджет недоступен",
                             Toast.LENGTH_SHORT).show()
                     );
                     return;
@@ -167,9 +167,9 @@ public class MainActivity extends AppCompatActivity
                     return;
                 }
 
-                if (!isDeviceReachable(device)) {
+                if (isDeviceReachable(device)) {
                     runOnUiThread(() -> Toast.makeText(this,
-                            "Такого гаджета не существует",
+                            "Гаджет недоступен",
                             Toast.LENGTH_SHORT).show()
                     );
                     return;
@@ -201,9 +201,9 @@ public class MainActivity extends AppCompatActivity
             connection.setReadTimeout(2000);
             int responseCode = connection.getResponseCode();
             connection.disconnect();
-            return responseCode < HttpURLConnection.HTTP_BAD_REQUEST;
+            return responseCode >= HttpURLConnection.HTTP_BAD_REQUEST;
         } catch (Exception e) {
-            return false;
+            return true;
         }
     }
 
@@ -239,13 +239,13 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                 .setTitle(deviceToEdit == null
                         ? R.string.add_device
                         : R.string.edit_device)
                 .setView(dialogBinding.getRoot())
-                .setNegativeButton(R.string.cancel, null);
-        setPositiveButton(R.string.save, null);
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.save, null);
 
         if (deviceToEdit != null) {
             builder.setNeutralButton(R.string.delete, null);
@@ -292,23 +292,21 @@ public class MainActivity extends AppCompatActivity
             });
             if (deviceToEdit != null) {
                 Button deleteBtn = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-                deleteBtn.setOnClickListener(v -> {
-                    new MaterialAlertDialogBuilder(this)
-                            .setTitle(R.string.delete_device)
-                            .setMessage(getString(
-                                    R.string.delete_device_confirmation,
-                                    deviceToEdit.getName()
-                            ))
-                            .setNegativeButton(R.string.cancel, null)
-                            .setPositiveButton(R.string.delete, (dialog1, which) -> {
-                                devices.remove(position);
-                                deviceAdapter.notifyItemRemoved(position);
-                                saveDevices();
-                                updateEmptyState();
-                                dialog.dismiss();
-                            })
-                            .show();
-                });
+                deleteBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+                        .setTitle(R.string.delete_device)
+                        .setMessage(getString(
+                                R.string.delete_device_confirmation,
+                                deviceToEdit.getName()
+                        ))
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.delete, (dialog1, which) -> {
+                            devices.remove(position);
+                            deviceAdapter.notifyItemRemoved(position);
+                            saveDevices();
+                            updateEmptyState();
+                            dialog.dismiss();
+                        })
+                        .show());
             }
 
         });
