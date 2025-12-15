@@ -56,6 +56,10 @@ public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnD
         if (deviceToEdit != null) {
             dialogBinding.deviceNameInput.setText(deviceToEdit.getName());
             dialogBinding.deviceIpInput.setText(deviceToEdit.getIpAddress());
+            Integer port = deviceToEdit.getPort();
+            if (port != null) {
+                dialogBinding.devicePortInput.setText(String.valueOf(port));
+            }
         }
 
         AlertDialog dialog = new MaterialAlertDialogBuilder(this)
@@ -74,9 +78,13 @@ public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnD
                 String ip = dialogBinding.deviceIpInput.getText() != null
                         ? dialogBinding.deviceIpInput.getText().toString().trim()
                         : "";
+                String portText = dialogBinding.devicePortInput.getText() != null
+                        ? dialogBinding.devicePortInput.getText().toString().trim()
+                        : "";
 
                 dialogBinding.deviceNameLayout.setError(null);
                 dialogBinding.deviceIpLayout.setError(null);
+                dialogBinding.devicePortLayout.setError(null);
 
                 if (TextUtils.isEmpty(name)) {
                     dialogBinding.deviceNameLayout.setError(getString(R.string.error_empty_name));
@@ -87,14 +95,29 @@ public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnD
                     dialogBinding.deviceIpLayout.setError(getString(R.string.error_empty_ip));
                     return;
                 }
+                Integer port = null;
+                if (!TextUtils.isEmpty(portText)) {
+                    try {
+                        int parsedPort = Integer.parseInt(portText);
+                        if (parsedPort <= 0 || parsedPort > 65535) {
+                            dialogBinding.devicePortLayout.setError(getString(R.string.error_invalid_port));
+                            return;
+                        }
+                        port = parsedPort;
+                    } catch (NumberFormatException e) {
+                        dialogBinding.devicePortLayout.setError(getString(R.string.error_invalid_port));
+                        return;
+                    }
+                }
 
                 if (deviceToEdit == null) {
-                    devices.add(0, new Device(name, ip));
+                    devices.add(0, new Device(name, ip, port));
                     deviceAdapter.notifyItemInserted(0);
                     binding.devicesRecycler.smoothScrollToPosition(0);
                 } else if (position >= 0 && position < devices.size()) {
                     deviceToEdit.setName(name);
                     deviceToEdit.setIpAddress(ip);
+                    deviceToEdit.setPort(port);
                     deviceAdapter.notifyItemChanged(position);
                 }
 
@@ -163,8 +186,15 @@ public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnD
                 JSONObject item = array.getJSONObject(i);
                 String name = item.optString("name");
                 String ip = item.optString("ip");
+                Integer port = null;
+                if (item.has("port") && !item.isNull("port")) {
+                    int parsedPort = item.optInt("port", -1);
+                    if (parsedPort > 0) {
+                        port = parsedPort;
+                    }
+                }
                 if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(ip)) {
-                    devices.add(new Device(name, ip));
+                    devices.add(new Device(name, ip, port));
                 }
             }
         } catch (JSONException e) {
@@ -179,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements DeviceAdapter.OnD
             try {
                 item.put("name", device.getName());
                 item.put("ip", device.getIpAddress());
+                item.put("port", device.getPort() != null ? device.getPort() : JSONObject.NULL);
                 array.put(item);
             } catch (JSONException e) {
                 e.printStackTrace();

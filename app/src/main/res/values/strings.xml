@@ -7,8 +7,11 @@
     <string name="device_list_empty">Здесь появятся ваши устройства после добавления</string>
     <string name="device_name_hint">Название устройства</string>
     <string name="device_ip_hint">IP адрес устройства</string>
+    <string name="device_port_hint">Порт (необязательно)</string>
+    <string name="device_port_placeholder">8080</string>
     <string name="error_empty_name">Введите название устройства</string>
     <string name="error_empty_ip">Введите IP адрес</string>
+    <string name="error_invalid_port">Укажите порт от 1 до 65535</string>
     <string name="edit_device">Редактировать устройство</string>
     <string name="rename_device">Переименовать</string>
     <string name="delete_device">Удалить устройство</string>

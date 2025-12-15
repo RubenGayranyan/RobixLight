@@ -52,7 +52,12 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
 
         void bind(Device device) {
             binding.deviceName.setText(device.getName());
-            binding.deviceIp.setText(device.getIpAddress());
+            Integer port = device.getPort();
+            String address = port != null
+                    ? device.getIpAddress() + ":" + port
+                    : device.getIpAddress();
+
+            binding.deviceIp.setText(address);
 
             binding.getRoot().setOnClickListener(v -> {
                 if (clickListener == null) {

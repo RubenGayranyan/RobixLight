@@ -3,10 +3,12 @@ package net.robixlab.lightcontrol;
 public class Device {
     private String name;
     private String ipAddress;
+    private Integer port;
 
-    public Device(String name, String ipAddress) {
+    public Device(String name, String ipAddress, Integer port) {
         this.name = name;
         this.ipAddress = ipAddress;
+        this.port = port;
     }
 
     public String getName() {
@@ -16,6 +18,9 @@ public class Device {
     public String getIpAddress() {
         return ipAddress;
     }
+    public Integer getPort() {
+        return port;
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -23,5 +28,8 @@ public class Device {
 
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
+    }
+    public void setPort(Integer port) {
+        this.port = port;
     }
 }
