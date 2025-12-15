@@ -57,21 +57,19 @@
                 android:textAlignment="center"
                 android:textColor="#7A7A7A"
                 android:textSize="14sp" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/addDeviceFab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:contentDescription="@string/add_device"
+                android:src="@drawable/ic_add"
+                app:backgroundTint="@color/primary"
+                app:fabCustomSize="64dp"
+                app:tint="@android:color/white" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addDeviceFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:contentDescription="@string/add_device"
-        android:src="@drawable/ic_add"
-        app:backgroundTint="@color/primary"
-        app:fabCustomSize="64dp"
-        app:layout_constraintBottom_toTopOf="@id/devicesCard"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@android:color/white" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/devicesCard"
